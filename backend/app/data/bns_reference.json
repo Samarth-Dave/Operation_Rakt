@@ -1,0 +1,106 @@
+{
+  "sections": [
+    {
+      "section": "103",
+      "title": "Murder",
+      "description": "Whoever causes death of any person, intending to cause such death or knowing it to be likely to cause death.",
+      "keywords": ["murder", "kill", "death", "homicide", "hatya", "maar dala", "jaan se maarna"]
+    },
+    {
+      "section": "109",
+      "title": "Attempt to Murder",
+      "description": "Whoever does any act with the intention or knowledge of causing death, and the act causes hurt to any person.",
+      "keywords": ["attempt to murder", "tried to kill", "jaan se maarne ki koshish", "fire", "attack", "stabbing"]
+    },
+    {
+      "section": "111",
+      "title": "Organised Crime",
+      "description": "Any continuing unlawful activity by an individual or a group acting in concert, singly or jointly, as a syndicate or gang, using violence, threat, intimidation, coercion, or other unlawful means to obtain direct or indirect material benefit.",
+      "keywords": ["organised crime", "syndicate", "gang", "organized", "criminal network", "racket", "gioh", "sangathit aparadh"]
+    },
+    {
+      "section": "115",
+      "title": "Voluntarily Causing Hurt",
+      "description": "Whoever does any act with intention or knowledge of causing hurt to any person.",
+      "keywords": ["hurt", "injury", "assault", "beaten", "maara", "peeta", "chot", "zakhmi"]
+    },
+    {
+      "section": "117",
+      "title": "Voluntarily Causing Grievous Hurt",
+      "description": "Whoever voluntarily causes hurt which endangers life, causes severe bodily pain, or permanent disfiguration.",
+      "keywords": ["grievous hurt", "fracture", "permanent injury", "serious injury", "haddi toodi", "ghayal"]
+    },
+    {
+      "section": "126",
+      "title": "Wrongful Restraint and Confinement",
+      "description": "Whoever voluntarily obstructs any person so as to prevent that person from proceeding in any direction.",
+      "keywords": ["restrain", "confine", "locked", "detained", "band karna", "rokna", "kidnap"]
+    },
+    {
+      "section": "137",
+      "title": "Kidnapping",
+      "description": "Whoever takes or entices any person beyond the limits of India or from lawful guardianship.",
+      "keywords": ["kidnap", "abduct", "taken away", "aghwa", "bhagaana"]
+    },
+    {
+      "section": "140",
+      "title": "Kidnapping for Ransom",
+      "description": "Whoever kidnaps or abducts any person in order that such person may be murdered or subjected to grievous hurt, or slavery, or ransom.",
+      "keywords": ["ransom", "kidnap for money", "firauti", "paison ke liye aghwa"]
+    },
+    {
+      "section": "303",
+      "title": "Theft",
+      "description": "Whoever intending to take dishonestly any moveable property out of the possession of any person without that person's consent.",
+      "keywords": ["theft", "steal", "stolen", "chori", "chura liya", "le gaya"]
+    },
+    {
+      "section": "304",
+      "title": "Snatching",
+      "description": "Theft by sudden or quick seizure of moveable property from any person or from their possession.",
+      "keywords": ["snatch", "grab", "chheenna", "jhapatta maarna"]
+    },
+    {
+      "section": "308",
+      "title": "Extortion",
+      "description": "Whoever intentionally puts any person in fear of any injury to that person or any other, and thereby dishonestly induces the person so put in fear to deliver to any person any property, valuable security, or anything signed or sealed.",
+      "keywords": ["extortion", "threat for money", "vasuli", "hafta", "supari", "ransom", "dhamki dekar paisa", "protection money"]
+    },
+    {
+      "section": "309",
+      "title": "Robbery",
+      "description": "In all robbery there is either theft or extortion, committed by a person in order to the committing of the theft or extortion, causes or attempts to cause death, hurt, or wrongful restraint.",
+      "keywords": ["robbery", "loot", "dacoity", "dakaiti", "lootpaat"]
+    },
+    {
+      "section": "310",
+      "title": "Dacoity",
+      "description": "When five or more persons conjointly commit or attempt to commit a robbery, every person so committing, attempting, or aiding is said to commit dacoity.",
+      "keywords": ["dacoity", "gang robbery", "five or more", "dakaiti"]
+    },
+    {
+      "section": "318",
+      "title": "Cheating",
+      "description": "Whoever by deceiving any person induces the person so deceived to deliver any property or to do or omit to do anything.",
+      "keywords": ["cheating", "fraud", "deception", "dhoka", "thagi", "scam"]
+    },
+    {
+      "section": "329",
+      "title": "Criminal Breach of Trust",
+      "description": "Whoever, being in any manner entrusted with property, dishonestly misappropriates or converts to his own use that property.",
+      "keywords": ["breach of trust", "misappropriation", "embezzlement", "vishwasghaat"]
+    },
+    {
+      "section": "351",
+      "title": "Criminal Intimidation",
+      "description": "Whoever threatens another with any injury to his person, reputation, or property, with intent to cause alarm or to cause that person to do or not do any act.",
+      "keywords": ["threat", "intimidation", "dhamki", "dharamki", "blackmail", "threatening"]
+    },
+    {
+      "section": "352",
+      "title": "Intentional Insult with Intent to Provoke",
+      "description": "Whoever intentionally insults, and thereby gives provocation to any person, intending that such provocation will cause him to break the public peace.",
+      "keywords": ["insult", "provoke", "gaali", "apmaan"]
+    }
+  ]
+}
