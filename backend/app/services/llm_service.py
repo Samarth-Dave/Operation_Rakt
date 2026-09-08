@@ -113,14 +113,15 @@ def _clean_json_text(text: str) -> str:
 
 
 def extract_with_gemini(fir_text: str, fir_number: str) -> dict:
-    """Extract entities using Google Gemini 1.5 Flash."""
+    """Extract entities using Google Gemini."""
     import google.generativeai as genai
     api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
     if not api_key:
         raise ValueError("GOOGLE_API_KEY is not set.")
     genai.configure(api_key=api_key)
     prompt = build_prompt(fir_text)
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    model_name = os.getenv("GEMINI_MODEL_NAME", "gemini-1.5-flash")
+    model = genai.GenerativeModel(model_name)
     response = model.generate_content(
         prompt,
         generation_config=genai.GenerationConfig(
@@ -281,7 +282,7 @@ def extract_entities(fir_text: str, fir_number: str = "UNKNOWN") -> dict:
     # 1. Try Gemini
     if os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY"):
         try:
-            logger.info("Extracting entities via Gemini 1.5 Flash...")
+            logger.info("Extracting entities via Gemini...")
             return extract_with_gemini(fir_text, fir_number)
         except Exception as e:
             logger.warning(f"Gemini extraction failed: {e}. Checking alternatives...")

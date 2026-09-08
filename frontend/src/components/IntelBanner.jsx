@@ -1,76 +1,60 @@
 import React from 'react';
-import { AlertCircle, Activity, Scissors, CheckCircle, X } from 'lucide-react';
+import { AlertTriangle, Activity, Scissors, X } from 'lucide-react';
 
 export default function IntelBanner({ topBridgeNode, simulationResult, onCloseBridge, onCloseSimulation }) {
   if (!topBridgeNode && !simulationResult) return null;
 
   return (
-    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-40 w-full max-w-2xl px-4 pointer-events-auto flex flex-col gap-2">
-      {/* Centrality Bridge Alert */}
+    <>
       {topBridgeNode && (
-        <div className="glass-panel border-l-4 border-l-red-500 border border-white/10 rounded-xl p-4 shadow-2xl bg-[#0e1628]/95 animate-slideUp flex items-start justify-between">
-          <div className="flex items-start gap-3">
-            <div className="p-2 rounded-lg bg-red-500/20 text-red-400 mt-0.5">
-              <Activity className="w-5 h-5 animate-pulse" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold font-mono uppercase tracking-wider text-red-400">
-                  Critical Network Bottleneck Identified
-                </span>
-                <span className="text-[10px] bg-red-500/20 text-red-300 font-mono px-2 py-0.5 rounded border border-red-500/30">
-                  Betweenness: {topBridgeNode.betweenness}
-                </span>
-              </div>
-              <h4 className="font-bold text-white text-sm mt-0.5">
-                {topBridgeNode.name}
-              </h4>
-              <p className="text-xs text-slate-300 mt-1 leading-relaxed">
-                {topBridgeNode.reason || "Acts as the single point of failure and communications bridge connecting regional extortion nodes to syndicate leadership."}
-              </p>
-            </div>
+        <div className="intel-banner red">
+          <div style={{ width: 34, height: 34, borderRadius: 8, background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <Activity size={16} color="var(--red)" className="animate-pulse" />
           </div>
-          <button onClick={onCloseBridge} className="text-slate-400 hover:text-white p-1">
-            <X className="w-4 h-4" />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+              <span style={{ fontSize: 9, fontFamily: 'var(--font-mono)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--red)' }}>
+                Critical Network Bottleneck
+              </span>
+              <span style={{ fontSize: 9, background: 'rgba(239,68,68,0.15)', color: '#fca5a5', border: '1px solid rgba(239,68,68,0.3)', padding: '2px 8px', borderRadius: 9999, fontFamily: 'var(--font-mono)', fontWeight: 700 }}>
+                Betweenness: {topBridgeNode.betweenness}
+              </span>
+            </div>
+            <h4 style={{ fontSize: 13, fontWeight: 700, color: '#fff', marginBottom: 3 }}>{topBridgeNode.name}</h4>
+            <p style={{ fontSize: 11, color: 'var(--text-2)', lineHeight: 1.5 }}>
+              {topBridgeNode.reason || 'Acts as the single point of failure connecting regional extortion nodes to syndicate leadership.'}
+            </p>
+          </div>
+          <button className="icon-btn" onClick={onCloseBridge} aria-label="Dismiss bridge alert">
+            <X size={14} />
           </button>
         </div>
       )}
 
-      {/* Simulation Result Briefing */}
       {simulationResult && (
-        <div className={`glass-panel border-l-4 rounded-xl p-4 shadow-2xl bg-[#0e1628]/95 animate-slideUp flex items-start justify-between ${
-          simulationResult.shattered ? 'border-l-red-500' : 'border-l-sky-500'
-        }`}>
-          <div className="flex items-start gap-3">
-            <div className={`p-2 rounded-lg mt-0.5 ${
-              simulationResult.shattered ? 'bg-red-500/20 text-red-400' : 'bg-sky-500/20 text-sky-400'
-            }`}>
-              <Scissors className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className={`text-xs font-bold font-mono uppercase tracking-wider ${
-                  simulationResult.shattered ? 'text-red-400' : 'text-sky-400'
-                }`}>
-                  {simulationResult.shattered ? 'Network Shattered' : 'Arrest Impact Analysis'}
-                </span>
-                <span className="text-[10px] bg-white/10 text-white font-mono px-2 py-0.5 rounded border border-white/10">
-                  {simulationResult.components_before} → {simulationResult.components_after} Components
-                </span>
-              </div>
-              <h4 className="font-bold text-white text-sm mt-0.5">
-                Target: {simulationResult.arrested_node?.display_name || simulationResult.arrested_node?.name || 'Arrested Node'}
-              </h4>
-              <p className="text-xs text-slate-300 mt-1 leading-relaxed">
-                {simulationResult.tactical_summary}
-              </p>
-            </div>
+        <div className={`intel-banner ${simulationResult.shattered ? 'red' : 'sky'}`}>
+          <div style={{ width: 34, height: 34, borderRadius: 8, background: simulationResult.shattered ? 'rgba(239,68,68,0.15)' : 'rgba(56,189,248,0.12)', border: `1px solid ${simulationResult.shattered ? 'rgba(239,68,68,0.25)' : 'rgba(56,189,248,0.22)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <Scissors size={16} color={simulationResult.shattered ? 'var(--red)' : 'var(--sky)'} />
           </div>
-          <button onClick={onCloseSimulation} className="text-slate-400 hover:text-white p-1">
-            <X className="w-4 h-4" />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+              <span style={{ fontSize: 9, fontFamily: 'var(--font-mono)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: simulationResult.shattered ? 'var(--red)' : 'var(--sky)' }}>
+                {simulationResult.shattered ? '⚡ Network Shattered' : 'Arrest Impact Analysis'}
+              </span>
+              <span style={{ fontSize: 9, background: 'rgba(255,255,255,0.08)', color: 'var(--text-1)', border: '1px solid rgba(255,255,255,0.12)', padding: '2px 8px', borderRadius: 9999, fontFamily: 'var(--font-mono)', fontWeight: 700 }}>
+                {simulationResult.components_before} → {simulationResult.components_after} Components
+              </span>
+            </div>
+            <h4 style={{ fontSize: 13, fontWeight: 700, color: '#fff', marginBottom: 3 }}>
+              Target: {simulationResult.arrested_node?.display_name || simulationResult.arrested_node?.name || 'Arrested Node'}
+            </h4>
+            <p style={{ fontSize: 11, color: 'var(--text-2)', lineHeight: 1.5 }}>{simulationResult.tactical_summary}</p>
+          </div>
+          <button className="icon-btn" onClick={onCloseSimulation} aria-label="Dismiss simulation result">
+            <X size={14} />
           </button>
         </div>
       )}
-    </div>
+    </>
   );
 }
