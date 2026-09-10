@@ -33,8 +33,26 @@ export default function GraphCanvas({ graphData, selectedNode, onNodeClick, topB
 
   useEffect(() => {
     if (fgRef.current) {
-      fgRef.current.d3Force('charge').strength(-300);
-      fgRef.current.d3Force('link').distance(80);
+      const chargeForce = fgRef.current.d3Force('charge');
+      if (chargeForce) {
+        chargeForce.strength(-250);
+        // CRITICAL: Stop repelling nodes once they are 300px apart.
+        // This prevents shattered components from flying infinitely far away!
+        chargeForce.distanceMax(300); 
+      }
+      
+      const linkForce = fgRef.current.d3Force('link');
+      if (linkForce) {
+        linkForce.distance(70);
+      }
+
+      // Auto-center the graph after a slight delay so it settles in the viewport
+      // This fixes the "graph not visible on first load" issue.
+      setTimeout(() => {
+        if (fgRef.current) {
+          fgRef.current.zoomToFit(600, 50);
+        }
+      }, 600);
     }
   }, [graphData]);
 

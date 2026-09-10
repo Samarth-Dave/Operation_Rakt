@@ -99,7 +99,7 @@ export default function App() {
   const handleResetDatabase = async () => {
     if (!window.confirm('Wipe entire Neo4j database? This removes all criminal network nodes.')) return;
     try {
-      await axios.post(`${API_BASE}/api/ingest/confirm`, { fir_number: 'WIPED', persons: [], objects: [], locations: [], events: [], relationships: [], bns_tags: [] });
+      await axios.post(`${API_BASE}/api/ingest/wipe`);
       await fetchGraph();
       setSelectedNode(null); setTopBridgeNode(null); setSimulationResult(null);
     } catch (err) { console.error('Reset failed:', err); }

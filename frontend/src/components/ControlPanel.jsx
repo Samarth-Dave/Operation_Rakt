@@ -1,5 +1,5 @@
 import React from 'react';
-import { Shield, Activity, Scissors, RotateCcw, Upload, Database } from 'lucide-react';
+import { Shield, Activity, Scissors, RotateCcw, Upload } from 'lucide-react';
 
 export default function ControlPanel({
   onOpenUpload, onSeedDatabase, onResetDatabase, onAnalyzeCentrality,
@@ -112,16 +112,6 @@ export default function ControlPanel({
 
       {/* ── DB Utilities ── */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-        <button
-          className="btn btn-ghost btn-sm btn-full"
-          onClick={onSeedDatabase}
-          disabled={isSeeding}
-          id="btn-reseed"
-          style={{ justifyContent: 'flex-start' }}
-        >
-          <Database size={12} color="var(--sky)" />
-          {isSeeding ? 'Seeding mock FIRs…' : 'Reseed 4 Mock FIRs'}
-        </button>
         <button
           className="btn btn-ghost btn-sm btn-full"
           onClick={onResetDatabase}
