@@ -4,11 +4,11 @@ import os
 import logging
 import warnings
 from neo4j import GraphDatabase
-from neo4j.exceptions import Neo4jDeprecationWarning
 from dotenv import load_dotenv
 
-warnings.filterwarnings("ignore", category=Neo4jDeprecationWarning)
+# Suppress annoying neo4j deprecation warnings without relying on specific exception classes
 warnings.filterwarnings("ignore", message=".*The query used a deprecated function.*")
+warnings.filterwarnings("ignore", module="neo4j")
 
 load_dotenv()
 logger = logging.getLogger(__name__)
