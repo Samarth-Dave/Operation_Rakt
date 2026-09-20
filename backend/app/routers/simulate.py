@@ -28,13 +28,17 @@ async def simulate_arrest(node_id: int):
     and returns the fragmented graph with cluster color assignments."""
     try:
         raw_graph = get_full_graph()
-        nodes = raw_graph.get("nodes", [])
-        links = raw_graph.get("links", [])
+        
+        # Filter out non-operational nodes (FIR, BNSSection) from fragmentation logic
+        valid_labels = {"Person", "Object", "Location", "Event"}
+        nodes = [n for n in raw_graph.get("nodes", []) if n.get("label") in valid_labels]
+        valid_node_ids = {n["id"] for n in nodes}
+        links = [l for l in raw_graph.get("links", []) if l["source"] in valid_node_ids and l["target"] in valid_node_ids]
 
         # Find target node
         target_node = next((n for n in nodes if n["id"] == node_id), None)
         if not target_node:
-            raise HTTPException(status_code=404, detail="Target node not found in graph")
+            raise HTTPException(status_code=404, detail="Target node not found in operational graph")
 
         # Build NetworkX graph before removal
         G_before = nx.Graph()
@@ -69,16 +73,33 @@ async def simulate_arrest(node_id: int):
 
         for n in nodes:
             if n["id"] == node_id:
+                # Add the arrested node back as a floating, severed node
+                n_copy = dict(n)
+                n_copy["cluster_id"] = -99
+                n_copy["cluster_color"] = "#ff0000" # Bright red for the arrested target
+                n_copy["is_arrested"] = True
+                n_copy["display_name"] = f"🚨 {n.get('display_name') or n.get('name')} (ARRESTED)"
+                remaining_nodes.append(n_copy)
                 continue
+            
             n_copy = dict(n)
             cluster_info = node_cluster_map.get(n["id"], {"cluster_id": 0, "cluster_color": "#94a3b8"})
             n_copy["cluster_id"] = cluster_info["cluster_id"]
             n_copy["cluster_color"] = cluster_info["cluster_color"]
             remaining_nodes.append(n_copy)
 
-        # Filter remaining links (exclude links connected to arrested node)
+        # Re-add metadata nodes (FIR, BNSSection) but colored gray so they fade out
+        metadata_nodes = [n for n in raw_graph.get("nodes", []) if n.get("label") not in valid_labels and n["id"] != node_id]
+        for mn in metadata_nodes:
+            mn_copy = dict(mn)
+            mn_copy["cluster_id"] = -1
+            mn_copy["cluster_color"] = "#334155" # Slate gray
+            remaining_nodes.append(mn_copy)
+
+        # Include all links from the raw graph, except those connected to the arrested node
+        all_raw_links = raw_graph.get("links", [])
         remaining_links = [
-            l for l in links
+            l for l in all_raw_links
             if l["source"] != node_id and l["target"] != node_id
         ]
 
@@ -89,10 +110,14 @@ async def simulate_arrest(node_id: int):
             f"Arresting '{target_name}' caused the syndicate network to fragment from "
             f"{components_before} to {components_count} isolated clusters. "
             f"All operational links passing through this node have been severed, "
-            f"blinding cross-cell communication and cutting off financial transit."
+            f"blinding cross-cell communication and cutting off financial transit. "
+            f"(Note: Paperwork/Metadata nodes like FIRs are rendered in gray and excluded from "
+            f"fragmentation math to reveal the true operational syndicate)."
             if shattered else
-            f"Arresting '{target_name}' removed {len(links) - len(remaining_links)} connections. "
-            f"The network remains in {components_count} component(s)."
+            f"Arresting '{target_name}' removed operational connections. "
+            f"The network remains in {components_count} component(s). "
+            f"(Note: Paperwork/Metadata nodes like FIRs are rendered in gray and excluded from "
+            f"fragmentation math to reveal the true operational syndicate)."
         )
 
         return {

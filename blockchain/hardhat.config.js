@@ -1,8 +1,9 @@
-require("dotenv").config();
-require("@nomicfoundation/hardhat-toolbox");
+import dotenv from "dotenv";
+dotenv.config();
+import "@nomicfoundation/hardhat-toolbox";
 
 /** @type import('hardhat/config').HardhatUserConfig */
-module.exports = {
+export default {
   solidity: "0.8.19",
   networks: {
     ganache: {

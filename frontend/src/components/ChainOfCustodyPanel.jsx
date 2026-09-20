@@ -65,7 +65,11 @@ export default function ChainOfCustodyPanel({ evidenceId }) {
       await loadChain(); // Refresh the chain
     } catch (err) {
       console.error(err);
-      setError(err.message || "Transaction failed");
+      if (err.code === 'ACTION_REJECTED' || (err.message && err.message.includes('user rejected'))) {
+        setError("Transaction cancelled by user.");
+      } else {
+        setError(err.shortMessage || err.message || "Transaction failed");
+      }
     } finally {
       setIsSubmitting(false);
     }

@@ -191,16 +191,18 @@ export default function NodeDetail({ node, centralityScore, onClose, onSimulateA
 
       </div>
 
-      {/* Footer */}
-      <div className="node-detail-footer">
-        <button
-          id="btn-simulate-arrest-node"
-          className="btn btn-danger btn-full"
-          onClick={() => onSimulateArrest(node.id)}
-        >
-          <Scissors size={12} /> SIMULATE TACTICAL ARREST
-        </button>
-      </div>
+      {/* Footer - Only show Tactical Arrest for Persons */}
+      {label === 'Person' && (
+        <div className="node-detail-footer">
+          <button
+            id="btn-simulate-arrest-node"
+            className="btn btn-danger btn-full"
+            onClick={() => onSimulateArrest(node.id)}
+          >
+            <Scissors size={12} /> SIMULATE TACTICAL ARREST
+          </button>
+        </div>
+      )}
     </div>
   );
 }

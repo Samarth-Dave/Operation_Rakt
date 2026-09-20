@@ -67,7 +67,12 @@ export default function App() {
 
   const handleNodeClick = useCallback(async (node) => {
     if (isSimulationActive) {
-      executeArrestSimulation(node.id);
+      const label = node.label || (node.labels && node.labels[0]);
+      if (label === 'Person') {
+        executeArrestSimulation(node.id);
+      } else {
+        console.warn("Tactical Arrest simulation requires a Person node.");
+      }
     } else {
       try {
         const resp = await axios.get(`${API_BASE}/api/graph/node/${node.id}`);
