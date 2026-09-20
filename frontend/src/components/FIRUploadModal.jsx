@@ -350,12 +350,14 @@ export default function FIRUploadModal({ isOpen, onClose, onExtractionComplete }
               </button>
             ))}
           </div>
+        </div>
 
         {error && (
           <div className="p-2 text-xs flex items-center gap-2" style={{ background: 'var(--red-bg)', border: '1px solid var(--red)', color: 'var(--red)' }}>
             <AlertTriangle size={14} style={{ flexShrink: 0 }} />
             <span>{error}</span>
           </div>
+        )}
 
         {/* Action Buttons */}
         <div className="flex items-center justify-end gap-2 pt-2 border-t" style={{ borderColor: 'rgba(0, 240, 255, 0.08)' }}>

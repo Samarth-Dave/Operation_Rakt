@@ -1,5 +1,6 @@
 import React from 'react';
 import { ShieldAlert, User, MapPin, Box, Calendar, FileText, Bookmark, X, Activity, Scissors } from 'lucide-react';
+import ChainOfCustodyPanel from './ChainOfCustodyPanel';
 
 const ICON_MAP = {
   Person:     <User     size={14} color="#f87171" />,
@@ -24,7 +25,7 @@ const ICON_BG = {
 export default function NodeDetail({ node, centralityScore, onClose, onSimulateArrest, graphData }) {
   if (!node) return null;
 
-  const label = node.label || 'Unknown';
+  const label = node.label || (node.labels && node.labels.length > 0 ? node.labels[0] : 'Unknown');
   const displayName = node.display_name || node.name || node.number || 'Unnamed Node';
   const badgeClass = BADGE_MAP[label] || 'badge-unknown';
   const icon = ICON_MAP[label] || <ShieldAlert size={14} color="#5a6a80" />;
@@ -182,6 +183,11 @@ export default function NodeDetail({ node, centralityScore, onClose, onSimulateA
             </div>
           )}
         </div>
+
+        {/* Blockchain Chain of Custody for Evidence/Objects */}
+        {(label === 'Object' || label === 'Evidence') && (
+          <ChainOfCustodyPanel evidenceId={node.id} />
+        )}
 
       </div>
 
