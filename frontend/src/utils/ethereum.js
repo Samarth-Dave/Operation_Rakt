@@ -1,7 +1,6 @@
 import { ethers } from 'ethers';
 
-// TODO: Replace with the deployed contract address from Ganache/Remix
-export const CONTRACT_ADDRESS = "0x3a4701A93EE5A0557CbA74391cff97d212aE9D4c";
+export const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS;
 
 // The ABI for the EvidenceLedger contract
 const CONTRACT_ABI = [

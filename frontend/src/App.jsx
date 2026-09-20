@@ -10,7 +10,7 @@ import HudSummary from './components/HudSummary';
 import GeoIntelView from './components/GeoIntelView';
 import DemoReel from './components/DemoReel';
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000';
 
 /* ── UTC clock for the top banner ── */
 function useClock() {
