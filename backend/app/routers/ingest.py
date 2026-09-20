@@ -2,7 +2,7 @@
 import logging
 from fastapi import APIRouter, UploadFile, File, HTTPException
 from app.services import ocr_service, llm_service
-from app.services.neo4j_service import upsert_extraction
+from app.services.neo4j_service import upsert_extraction, reset_database
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -77,3 +77,15 @@ async def confirm_extraction(extraction: dict):
     except Exception as e:
         logger.error(f"Graph commit failed: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Graph commit failed: {str(e)}")
+
+
+@router.post("/wipe")
+async def wipe_database():
+    """Wipe all nodes and relationships from the graph."""
+    try:
+        logger.info("Wiping Neo4j database...")
+        reset_database()
+        return {"success": True, "message": "Database wiped successfully."}
+    except Exception as e:
+        logger.error(f"Failed to wipe database: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Wipe failed: {str(e)}")

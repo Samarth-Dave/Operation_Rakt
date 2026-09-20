@@ -2,8 +2,13 @@
 Uses Cypher MERGE to avoid duplicate nodes across FIRs."""
 import os
 import logging
+import warnings
 from neo4j import GraphDatabase
 from dotenv import load_dotenv
+
+# Suppress annoying neo4j deprecation warnings without relying on specific exception classes
+warnings.filterwarnings("ignore", message=".*The query used a deprecated function.*")
+warnings.filterwarnings("ignore", module="neo4j")
 
 load_dotenv()
 logger = logging.getLogger(__name__)

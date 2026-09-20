@@ -2,16 +2,16 @@ import React, { useState } from 'react';
 import { ShieldCheck, Edit3, Trash2, Plus, Database, FileText, ArrowRight, X } from 'lucide-react';
 
 export default function ReviewScreen({ extractionData, onConfirm, onCancel, isCommitting }) {
-  const [data, setData] = useState(extractionData);
+  const [data, setData] = useState(extractionData || {});
 
   const updatePerson = (index, field, value) => {
-    const updated = [...data.persons];
+    const updated = [...(data.persons || [])];
     updated[index][field] = value;
     setData({ ...data, persons: updated });
   };
 
   const removePerson = (index) => {
-    const updated = data.persons.filter((_, i) => i !== index);
+    const updated = (data.persons || []).filter((_, i) => i !== index);
     setData({ ...data, persons: updated });
   };
 
@@ -286,7 +286,6 @@ export default function ReviewScreen({ extractionData, onConfirm, onCancel, isCo
                     ))}
                   </div>
                 </div>
-
                 <div>
                   <span className="text-[10px] font-bold uppercase tracking-wider block mb-1" style={{ color: 'var(--text-2)' }}>
                     LOCATIONS ({data.locations?.length || 0})
@@ -308,9 +307,11 @@ export default function ReviewScreen({ extractionData, onConfirm, onCancel, isCo
                   </div>
                 </div>
               </div>
+
             </div>
           </div>
         </div>
+
       </div>
     </div>
   );
