@@ -19,158 +19,289 @@ export default function ReviewScreen({ extractionData, onConfirm, onCancel, isCo
     setData({
       ...data,
       persons: [
-        ...(data.persons || []),
-        { name: 'New Suspect', role: 'suspect', description: '', confidence: 1.0 }
+        ...data.persons,
+        { name: 'NEW SUSPECT', role: 'suspect', description: '', confidence: 1.0 }
       ]
     });
   };
 
   const getConfidenceBadge = (confidence) => {
     const conf = (confidence || 1.0) * 100;
-    if (conf >= 85) return <span style={{ background: 'rgba(16,185,129,0.15)', color: '#34d399', border: '1px solid rgba(16,185,129,0.3)', padding: '2px 6px', borderRadius: 4, fontSize: 10, fontWeight: 700 }}>{conf.toFixed(0)}% HIGH</span>;
-    if (conf >= 60) return <span style={{ background: 'rgba(245,158,11,0.15)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.3)', padding: '2px 6px', borderRadius: 4, fontSize: 10, fontWeight: 700 }}>{conf.toFixed(0)}% MED</span>;
-    return <span style={{ background: 'rgba(239,68,68,0.15)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)', padding: '2px 6px', borderRadius: 4, fontSize: 10, fontWeight: 700 }} className="animate-pulse">{conf.toFixed(0)}% VERIFY</span>;
+    if (conf >= 85) {
+      return (
+        <span
+          className="px-2 py-0.5 text-[10px] font-mono font-bold"
+          style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--emerald)', border: '1px solid rgba(16, 185, 129, 0.3)' }}
+        >
+          {conf.toFixed(0)}% HIGH
+        </span>
+      );
+    }
+    if (conf >= 60) {
+      return (
+        <span
+          className="px-2 py-0.5 text-[10px] font-mono font-bold"
+          style={{ background: 'rgba(245, 158, 11, 0.1)', color: 'var(--amber)', border: '1px solid rgba(245, 158, 11, 0.3)' }}
+        >
+          {conf.toFixed(0)}% MED
+        </span>
+      );
+    }
+    return (
+      <span
+        className="px-2 py-0.5 text-[10px] font-mono font-bold animate-pulse"
+        style={{ background: 'rgba(239, 68, 68, 0.15)', color: 'var(--red)', border: '1px solid rgba(239, 68, 68, 0.4)' }}
+      >
+        {conf.toFixed(0)}% VERIFY
+      </span>
+    );
   };
 
   return (
-    <div className="modal-overlay" style={{ zIndex: 9999 }}>
-      <div className="modal-box" style={{ width: '90vw', maxWidth: 1200, height: '85vh', display: 'flex', flexDirection: 'column', padding: 0 }}>
-        
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-6 animate-fadeIn" style={{ background: 'rgba(2, 4, 8, 0.88)', backdropFilter: 'blur(4px)' }}>
+      <div
+        className="w-full max-w-6xl h-[88vh] flex flex-col overflow-hidden font-mono relative"
+        style={{
+          background: 'var(--bg-surface)',
+          border: '1px solid rgba(0, 240, 255, 0.3)',
+          boxShadow: '0 0 40px rgba(0, 0, 0, 0.9)'
+        }}
+      >
+        {/* Corner bracket accents */}
+        <div style={{ position: 'absolute', top: -1, left: -1, width: 14, height: 14, borderTop: '2px solid var(--cyan)', borderLeft: '2px solid var(--cyan)', zIndex: 10 }} />
+        <div style={{ position: 'absolute', bottom: -1, right: -1, width: 14, height: 14, borderBottom: '2px solid var(--cyan)', borderRight: '2px solid var(--cyan)', zIndex: 10 }} />
+
         {/* Header */}
-        <div className="modal-header" style={{ padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.08)', background: '#0a0f1d' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div style={{ width: 38, height: 38, borderRadius: 10, background: 'rgba(56,189,248,0.1)', border: '1px solid rgba(56,189,248,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <ShieldCheck size={18} color="var(--sky)" />
+        <div
+          className="px-6 py-3.5 border-b flex items-center justify-between"
+          style={{ background: 'var(--bg-raised)', borderColor: 'rgba(0, 240, 255, 0.15)' }}
+        >
+          <div className="flex items-center gap-3">
+            <div className="p-2" style={{ background: 'rgba(0, 240, 255, 0.08)', border: '1px solid rgba(0, 240, 255, 0.25)', color: 'var(--cyan)' }}>
+              <ShieldCheck size={18} />
             </div>
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <h3 style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>Human-in-the-Loop Intelligence Verification</h3>
-                <span style={{ fontSize: 11, background: 'rgba(56,189,248,0.15)', color: '#bae6fd', border: '1px solid rgba(56,189,248,0.3)', padding: '2px 8px', borderRadius: 9999, fontFamily: 'var(--font-mono)', fontWeight: 700 }}>
-                  FIR: {data.fir_number || 'UNKNOWN'}
+              <div className="flex items-center gap-3">
+                <h2 className="text-xs font-bold uppercase tracking-wider text-white">
+                  HUMAN-IN-THE-LOOP INTELLIGENCE VERIFICATION
+                </h2>
+                <span
+                  className="px-2 py-0.5 text-[10px] uppercase font-bold"
+                  style={{ background: 'rgba(0, 240, 255, 0.1)', color: 'var(--cyan)', border: '1px solid rgba(0, 240, 255, 0.25)' }}
+                >
+                  FIR // {data.fir_number || 'UNKNOWN'}
                 </span>
               </div>
-              <p style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 2 }}>
-                Review and rectify LLM-extracted POLE entities and BNS statutory tags prior to committing to the Neo4j Knowledge Graph.
+              <p className="text-[10px] uppercase mt-0.5" style={{ color: 'var(--text-3)' }}>
+                Review and sanitize extracted POLE entities and BNS provisions prior to Neo4j persistence
               </p>
             </div>
           </div>
-          
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <button className="btn btn-ghost btn-sm" onClick={onCancel} disabled={isCommitting}>
-              <X size={14} /> Cancel
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={onCancel}
+              className="btn btn-ghost btn-sm"
+              disabled={isCommitting}
+            >
+              <X size={14} /> ABORT
             </button>
-            <button className="btn btn-primary btn-sm" onClick={() => onConfirm(data)} disabled={isCommitting}>
-              {isCommitting ? 'Committing to Neo4j...' : <><Database size={14} /> Commit to Knowledge Graph <ArrowRight size={14} /></>}
+            <button
+              onClick={() => onConfirm(data)}
+              className="btn btn-primary btn-sm"
+              disabled={isCommitting}
+            >
+              {isCommitting ? (
+                <>PERSISTING TO NEO4J...</>
+              ) : (
+                <>
+                  <Database size={14} /> COMMIT TO KNOWLEDGE GRAPH <ArrowRight size={14} />
+                </>
+              )}
             </button>
           </div>
         </div>
 
-        {/* Content Body */}
-        <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-          
-          {/* Left: Raw Text */}
-          <div style={{ width: '40%', borderRight: '1px solid rgba(255,255,255,0.08)', background: '#070b14', padding: 20, display: 'flex', flexDirection: 'column' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-              <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-2)', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <FileText size={14} color="var(--amber)" /> Scanned Document Narrative
+        {/* Content Body: Split Screen */}
+        <div className="flex-1 grid grid-cols-12 overflow-hidden">
+          {/* Left Column: Original Document */}
+          <div
+            className="col-span-5 border-r p-4 flex flex-col overflow-hidden"
+            style={{ background: 'rgba(2, 4, 8, 0.6)', borderColor: 'rgba(0, 240, 255, 0.1)' }}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5" style={{ color: 'var(--cyan-dim)' }}>
+                <FileText size={12} style={{ color: 'var(--amber)' }} /> RAW DOCUMENT NARRATIVE
               </span>
-              <span style={{ fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--text-3)' }}>
-                OCR Confidence: {((data.ocr_confidence || 1.0) * 100).toFixed(0)}%
+              <span className="text-[10px]" style={{ color: 'var(--text-3)' }}>
+                OCR CONFIDENCE: {((data.ocr_confidence || 1.0) * 100).toFixed(0)}%
               </span>
             </div>
-            <div style={{ flex: 1, background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 10, padding: 16, overflowY: 'auto', fontSize: 12, fontFamily: 'var(--font-mono)', color: 'var(--text-2)', whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>
+            <div
+              className="flex-1 p-3 overflow-y-auto text-[11px] whitespace-pre-wrap leading-relaxed select-text"
+              style={{
+                background: 'rgba(0, 0, 0, 0.5)',
+                border: '1px solid rgba(0, 240, 255, 0.08)',
+                color: 'var(--text-2)',
+              }}
+            >
               {data.raw_text || 'No raw text provided.'}
             </div>
           </div>
 
-          {/* Right: Editable Entities */}
-          <div style={{ width: '60%', background: '#0b1021', padding: 20, display: 'flex', flexDirection: 'column' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-              <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-2)', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <Edit3 size={14} color="var(--sky)" /> Extracted Entities (Editable)
+          {/* Right Column: Editable POLE Entities */}
+          <div
+            className="col-span-7 p-4 flex flex-col overflow-hidden"
+            style={{ background: 'var(--bg-surface)' }}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5" style={{ color: 'var(--cyan)' }}>
+                <Edit3 size={12} /> EXTRACTED POLE ENTITIES (EDITABLE)
               </span>
-              <button className="btn btn-ghost btn-sm" onClick={addPerson} style={{ padding: '4px 10px', fontSize: 11, color: 'var(--sky)' }}>
-                <Plus size={12} /> Add Person
+              <button
+                onClick={addPerson}
+                className="btn btn-sky btn-sm"
+              >
+                <Plus size={12} /> ADD PERSON
               </button>
             </div>
 
-            <div style={{ flex: 1, overflowY: 'auto', paddingRight: 10, display: 'flex', flexDirection: 'column', gap: 16 }}>
-              
-              {/* PERSONS */}
-              <div>
-                <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-3)', marginBottom: 8 }}>PERSONS & SUSPECTS ({(data.persons || []).length})</div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  {(data.persons || []).map((person, idx) => (
-                    <div key={idx} style={{ background: '#12192c', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 10, padding: 12 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                        <input
-                          type="text"
-                          value={person.name}
-                          onChange={(e) => updatePerson(idx, 'name', e.target.value)}
-                          style={{ flex: 1, background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, padding: '6px 10px', fontSize: 12, color: '#fff', outline: 'none' }}
-                          placeholder="Person Name"
-                        />
-                        <select
-                          value={person.role}
-                          onChange={(e) => updatePerson(idx, 'role', e.target.value)}
-                          style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, padding: '6px 10px', fontSize: 12, color: 'var(--text-1)', outline: 'none' }}
-                        >
-                          <option value="suspect">Suspect</option>
-                          <option value="victim">Victim</option>
-                          <option value="associate">Associate</option>
-                          <option value="witness">Witness</option>
-                          <option value="unknown">Unknown</option>
-                        </select>
-                        {getConfidenceBadge(person.confidence)}
-                        <button onClick={() => removePerson(idx)} style={{ background: 'transparent', border: 'none', color: 'var(--text-3)', cursor: 'pointer', padding: 4 }}>
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
+            <div className="flex-1 overflow-y-auto pr-1 flex flex-col gap-3">
+              {/* Persons Section */}
+              <div className="flex flex-col gap-2">
+                <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--text-2)' }}>
+                  PERSONS OF INTEREST ({data.persons?.length || 0})
+                </span>
+                {data.persons?.map((person, idx) => (
+                  <div
+                    key={idx}
+                    className="p-2 flex flex-col gap-1.5"
+                    style={{
+                      background: 'rgba(0, 240, 255, 0.03)',
+                      border: '1px solid rgba(0, 240, 255, 0.12)'
+                    }}
+                  >
+                    <div className="flex items-center gap-2">
                       <input
                         type="text"
-                        value={person.description || ''}
-                        onChange={(e) => updatePerson(idx, 'description', e.target.value)}
-                        style={{ width: '100%', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 6, padding: '6px 10px', fontSize: 12, color: 'var(--text-2)', outline: 'none' }}
-                        placeholder="Identifying details, aliases, or roles"
+                        value={person.name}
+                        onChange={(e) => updatePerson(idx, 'name', e.target.value)}
+                        className="flex-1 px-2 py-1 text-xs text-white font-mono uppercase"
+                        style={{
+                          background: 'rgba(0, 0, 0, 0.6)',
+                          border: '1px solid rgba(0, 240, 255, 0.2)',
+                          outline: 'none',
+                        }}
+                        placeholder="PERSON NAME"
                       />
+                      <select
+                        value={person.role}
+                        onChange={(e) => updatePerson(idx, 'role', e.target.value)}
+                        className="px-2 py-1 text-xs text-white font-mono uppercase"
+                        style={{
+                          background: 'rgba(0, 0, 0, 0.6)',
+                          border: '1px solid rgba(0, 240, 255, 0.2)',
+                          outline: 'none',
+                        }}
+                      >
+                        <option value="suspect">SUSPECT</option>
+                        <option value="victim">VICTIM</option>
+                        <option value="associate">ASSOCIATE</option>
+                        <option value="witness">WITNESS</option>
+                        <option value="unknown">UNKNOWN</option>
+                      </select>
+                      {getConfidenceBadge(person.confidence)}
+                      <button
+                        onClick={() => removePerson(idx)}
+                        className="p-1 hover:text-red-400 transition"
+                        style={{ background: 'transparent', border: 'none', color: 'var(--text-3)', cursor: 'pointer' }}
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
+                    <input
+                      type="text"
+                      value={person.description || ''}
+                      onChange={(e) => updatePerson(idx, 'description', e.target.value)}
+                      className="w-full px-2 py-1 text-[11px] font-mono"
+                      style={{
+                        background: 'rgba(0, 0, 0, 0.4)',
+                        border: '1px solid rgba(255, 255, 255, 0.06)',
+                        color: 'var(--text-2)',
+                        outline: 'none',
+                      }}
+                      placeholder="IDENTIFYING DETAILS, ALIASES, OR OPERATIONAL ROLE"
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {/* BNS Statutory Tags */}
+              <div className="flex flex-col gap-2 pt-2 border-t" style={{ borderColor: 'rgba(0, 240, 255, 0.08)' }}>
+                <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--text-2)' }}>
+                  BNS 2023 STATUTORY TAGS ({data.bns_tags?.length || 0})
+                </span>
+                <div className="grid grid-cols-2 gap-2">
+                  {data.bns_tags?.map((tag, idx) => (
+                    <div
+                      key={idx}
+                      className="p-2"
+                      style={{
+                        background: 'rgba(168, 85, 247, 0.06)',
+                        border: '1px solid rgba(168, 85, 247, 0.25)',
+                      }}
+                    >
+                      <div className="text-[11px] font-bold uppercase tracking-wider" style={{ color: 'var(--purple)' }}>
+                        SEC {tag.section}: {tag.title}
+                      </div>
+                      <p className="text-[10px] mt-1 leading-snug" style={{ color: 'var(--text-2)' }}>
+                        {tag.reasoning}
+                      </p>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* BNS TAGS */}
-              <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 16 }}>
-                <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-3)', marginBottom: 8 }}>BNS 2023 STATUTORY PROVISIONS ({(data.bns_tags || []).length})</div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                  {(data.bns_tags || []).map((tag, idx) => (
-                    <div key={idx} style={{ background: 'rgba(168,85,247,0.08)', border: '1px solid rgba(168,85,247,0.2)', padding: 12, borderRadius: 8 }}>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: '#c084fc', marginBottom: 4 }}>Section {tag.section}: {tag.title}</div>
-                      <div style={{ fontSize: 10, color: 'var(--text-3)', lineHeight: 1.4 }}>{tag.reasoning}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* OBJECTS & LOCATIONS */}
-              <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 16, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              {/* Objects & Locations */}
+              <div className="grid grid-cols-2 gap-3 pt-2 border-t" style={{ borderColor: 'rgba(0, 240, 255, 0.08)' }}>
                 <div>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-3)', marginBottom: 8 }}>OBJECTS & VEHICLES ({(data.objects || []).length})</div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                    {(data.objects || []).map((obj, idx) => (
-                      <div key={idx} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', padding: '8px 10px', borderRadius: 6 }}>
-                        <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--sky)' }}>{obj.name}</div>
-                        {obj.identifier && <div style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-3)' }}>{obj.identifier}</div>}
+                  <span className="text-[10px] font-bold uppercase tracking-wider block mb-1" style={{ color: 'var(--text-2)' }}>
+                    OBJECTS & VEHICLES ({data.objects?.length || 0})
+                  </span>
+                  <div className="flex flex-col gap-1">
+                    {data.objects?.map((obj, idx) => (
+                      <div
+                        key={idx}
+                        className="p-1.5 text-[11px]"
+                        style={{
+                          background: 'rgba(0, 240, 255, 0.04)',
+                          border: '1px solid rgba(0, 240, 255, 0.1)',
+                        }}
+                      >
+                        <div className="font-bold text-white uppercase">{obj.name}</div>
+                        {obj.identifier && (
+                          <div className="text-[10px] font-mono" style={{ color: 'var(--cyan-dim)' }}>{obj.identifier}</div>
+                        )}
                       </div>
                     ))}
                   </div>
                 </div>
                 <div>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-3)', marginBottom: 8 }}>LOCATIONS ({(data.locations || []).length})</div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                    {(data.locations || []).map((loc, idx) => (
-                      <div key={idx} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', padding: '8px 10px', borderRadius: 6 }}>
-                        <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--emerald)' }}>{loc.name}</div>
-                        <div style={{ fontSize: 10, color: 'var(--text-3)' }}>{loc.type}</div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider block mb-1" style={{ color: 'var(--text-2)' }}>
+                    LOCATIONS ({data.locations?.length || 0})
+                  </span>
+                  <div className="flex flex-col gap-1">
+                    {data.locations?.map((loc, idx) => (
+                      <div
+                        key={idx}
+                        className="p-1.5 text-[11px]"
+                        style={{
+                          background: 'rgba(16, 185, 129, 0.04)',
+                          border: '1px solid rgba(16, 185, 129, 0.15)',
+                        }}
+                      >
+                        <div className="font-bold text-white uppercase">{loc.name}</div>
+                        <div className="text-[10px]" style={{ color: 'var(--emerald)' }}>{loc.type || 'GEOSPATIAL'}</div>
                       </div>
                     ))}
                   </div>

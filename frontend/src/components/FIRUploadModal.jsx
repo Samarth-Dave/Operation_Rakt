@@ -1,5 +1,5 @@
-import React, { useState, useCallback } from 'react';
-import { Upload, FileText, AlertTriangle, Sparkles, X, Zap, ChevronRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { Upload, FileText, AlertTriangle, Sparkles, X } from 'lucide-react';
 import axios from 'axios';
 
 const API_BASE = 'http://localhost:8000';
@@ -239,134 +239,140 @@ export default function FIRUploadModal({ isOpen, onClose, onExtractionComplete }
     } finally { setIsProcessing(false); }
   };
 
-  const loadDemoCase = async (caseObj) => {
-    setIsProcessing(true); setProcessingCase(caseObj.id); setError(null);
+  const loadMockSample = async (sampleNum) => {
+    setIsProcessing(true);
+    setError(null);
     try {
-      const blob = new Blob([caseObj.text], { type: 'text/plain' });
-      const mockFile = new File([blob], caseObj.filename, { type: 'text/plain' });
-      const resp = await uploadFile(mockFile);
-      if (resp.data.success) onExtractionComplete(resp.data.extraction);
-      else setError('Extraction failed for this case.');
+      const samples = {
+        1: `FIR No: 2024/MUM/EXT/0187\nPolice Station: Andheri West, Mumbai\nComplainant: Rajesh Kumar Agarwal, businessman.\nStatement: Main Rajesh Kumar Agarwal apni dukaan Agarwal Textile Mills mein kaam kar raha tha. Tab meri dukaan mein ek aadmi aaya jiska naam Chhotu hai. Uske saath ek aur aadmi tha jise woh Bhai bula raha tha. Chhotu ne 2 lakh rupaye maange nahi toh dukaan jalane ki dhamki di. Usne Bajaj Pulsar MH-02-AB-1234 ka use kiya. Dusre aadmi ne katta dikha ke kaha Vikram Delhi se aate hain, unhe mana mat karna. Paisa Shankar Tea Stall Lokhandwala pe dene ko bola.`,
+        2: `FIR No: 2024/MUM/EXT/0192\nPolice Station: Jogeshwari East, Mumbai\nComplainant: Farhan Shaikh, Shaikh Electronics.\nStatement: Meri dukaan mein Deepak aaya, bola Vikram Bhai ke aadmi hain aur protection money 1.5 lakh chahiye. Usne Maruti Swift MH-04-CD-5678 use kiya. Bola paisa Ramesh ko Royal Hotel Goregaon West mein dena hai. Chhotu ka bhi naam liya.`,
+        3: `FIR No: 2024/MUM/FIN/0201\nPolice Station: Goregaon West, Crime Branch.\nReport: Royal Hotel Goregaon manager Ramesh Gupta operates an extortion hawala conduit to Vikram Singh Tomar in Delhi. Shankar Yadav drops cash, Deepak Jadhav coordinates Swift drops, and Suresh Pandey arranges Thane logistics. Chhotu is the street collector.`,
+        4: `FIR No: 2024/MUM/ASS/0215\nPolice Station: Versova, Mumbai\nComplainant: Amit Verma, Verma General Store.\nStatement: Deepak aur Bunty aaye, meri counter todi, 50,000 cash le gaye aur bola paisa Ramesh ko Royal Hotel mein do warna agla baar Chhotu aayega.`
+      };
+
+      const text = samples[sampleNum] || samples[1];
+      const blob = new Blob([text], { type: 'text/plain' });
+      const mockFile = new File([blob], `mock_fir_${sampleNum}.txt`, { type: 'text/plain' });
+
+      const formData = new FormData();
+      formData.append('file', mockFile);
+
+      const resp = await axios.post('http://localhost:8000/api/ingest/upload', formData);
+      if (resp.data.success) {
+        onExtractionComplete(resp.data.extraction);
+      }
     } catch (err) {
       setError(err.response?.data?.detail || err.message || 'Case extraction failed.');
     } finally { setIsProcessing(false); setProcessingCase(null); }
   };
 
   return (
-    <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && !isProcessing && onClose()}>
-      <div className="modal-box">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fadeIn" style={{ background: 'rgba(2, 4, 8, 0.85)', backdropFilter: 'blur(4px)' }}>
+      <div className="w-full max-w-xl p-6 flex flex-col gap-4 font-mono relative" style={{ background: 'var(--bg-surface)', border: '1px solid rgba(0, 240, 255, 0.3)', boxShadow: '0 0 30px rgba(0,0,0,0.8)' }}>
+        {/* Corner bracket accents */}
+        <div style={{ position: 'absolute', top: -1, left: -1, width: 10, height: 10, borderTop: '2px solid var(--cyan)', borderLeft: '2px solid var(--cyan)' }} />
+        <div style={{ position: 'absolute', bottom: -1, right: -1, width: 10, height: 10, borderBottom: '2px solid var(--cyan)', borderRight: '2px solid var(--cyan)' }} />
+
         {/* Header */}
-        <div className="modal-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div style={{ width: 38, height: 38, borderRadius: 10, background: 'rgba(56,189,248,0.1)', border: '1px solid rgba(56,189,248,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Upload size={17} color="var(--sky)" />
+        <div className="flex items-center justify-between border-b pb-3" style={{ borderColor: 'rgba(0, 240, 255, 0.12)' }}>
+          <div className="flex items-center gap-3">
+            <div className="p-2" style={{ background: 'rgba(0, 240, 255, 0.08)', border: '1px solid rgba(0, 240, 255, 0.25)', color: 'var(--cyan)' }}>
+              <Upload size={18} />
             </div>
             <div>
-              <h3 style={{ fontSize: 15, fontWeight: 700, color: '#fff' }}>Ingest First Information Report</h3>
-              <p style={{ fontSize: 11, color: 'var(--text-3)', marginTop: 2 }}>
-                OCR → POLE Extraction → BNS 2023 Tagging → Neo4j Graph
+              <div className="text-xs font-bold uppercase tracking-wider text-white">
+                INGEST FIRST INFORMATION REPORT // OCR & POLE PIPELINE
+              </div>
+              <p className="text-[10px] uppercase" style={{ color: 'var(--text-2)' }}>
+                POLE entity extraction & BNS 2023 statutory tagging
               </p>
             </div>
           </div>
-          <button className="icon-btn" onClick={onClose} disabled={isProcessing} aria-label="Close modal">
-            <X size={14} />
+          <button
+            onClick={onClose}
+            className="p-1 text-slate-400 hover:text-white transition"
+            style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}
+          >
+            <X size={18} />
           </button>
         </div>
 
-        <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {/* Drop Zone */}
-          <div
-            className={`dropzone ${dragOver ? 'active' : ''}`}
-            onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-            onDragLeave={() => setDragOver(false)}
-            onDrop={handleDrop}
-            style={{ position: 'relative' }}
-          >
-            <input
-              type="file"
-              accept=".pdf,.png,.jpg,.jpeg,.txt"
-              onChange={handleFileChange}
-              style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer' }}
-            />
-            <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(56,189,248,0.08)', border: '1px solid rgba(56,189,248,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <FileText size={22} color="var(--sky)" />
-            </div>
-            <span style={{ fontSize: 13, fontWeight: 600, color: file ? 'var(--sky)' : '#fff', marginTop: 6 }}>
-              {file ? `✓ ${file.name}` : 'Drag & drop FIR document, or click to browse'}
-            </span>
-            <span style={{ fontSize: 11, color: 'var(--text-3)' }}>
-              Supports scanned images (PNG, JPG), digital PDFs, or plain text
-            </span>
+        {/* Upload Drop Zone */}
+        <div
+          className="p-6 flex flex-col items-center justify-center text-center transition group relative cursor-pointer"
+          style={{
+            background: 'rgba(0, 0, 0, 0.5)',
+            border: '1px dashed rgba(0, 240, 255, 0.3)',
+          }}
+        >
+          <input
+            type="file"
+            accept=".pdf,.png,.jpg,.jpeg,.txt"
+            onChange={handleFileChange}
+            className="absolute inset-0 opacity-0 cursor-pointer"
+          />
+          <div className="p-3" style={{ background: 'rgba(0, 240, 255, 0.06)', color: 'var(--cyan)' }}>
+            <FileText size={24} />
           </div>
+          <span className="text-xs font-semibold text-white mt-3 uppercase tracking-wider">
+            {file ? file.name : 'SELECT / DROP FIR DOCUMENT'}
+          </span>
+          <span className="text-[10px] mt-1" style={{ color: 'var(--text-3)' }}>
+            [PDF, PNG, JPG, TXT // OCR CONFIDENCE THRESHOLD 80%]
+          </span>
+        </div>
 
-          {/* Demo Cases */}
-          <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, padding: '12px 14px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 10 }}>
-              <Sparkles size={13} color="var(--amber)" />
-              <span style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--sky)' }}>
-                Live Demo — Upload & Build Graph Case by Case
-              </span>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {DEMO_CASES.map((c) => (
-                <button
-                  key={c.id}
-                  className="case-chip"
-                  onClick={() => loadDemoCase(c)}
-                  disabled={isProcessing}
-                  id={`btn-demo-case-${c.id}`}
-                  style={{ borderLeft: `3px solid ${c.color}`, opacity: isProcessing && processingCase !== c.id ? 0.5 : 1 }}
-                >
-                  {processingCase === c.id ? (
-                    <span className="animate-spin" style={{ width: 14, height: 14, border: '2px solid rgba(255,255,255,0.2)', borderTopColor: c.color, borderRadius: '50%', flexShrink: 0, display: 'inline-block' }} />
-                  ) : (
-                    <span style={{ width: 14, height: 14, borderRadius: '50%', background: c.color, opacity: 0.8, flexShrink: 0 }} />
-                  )}
-                  <div style={{ flex: 1, textAlign: 'left' }}>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: processingCase === c.id ? c.color : '#fff' }}>
-                      {processingCase === c.id ? 'Processing with Gemini…' : c.title}
-                    </div>
-                    <div style={{ fontSize: 10, color: 'var(--text-3)', marginTop: 1 }}>{c.sub}</div>
-                  </div>
-                  <ChevronRight size={13} color="var(--text-3)" />
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Pipeline info */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 10, color: 'var(--text-3)' }}>
-            {['OCR / Text Parse', 'Gemini POLE Extraction', 'BNS 2023 Tagging', 'Human Review', 'Neo4j Upsert'].map((step, i, arr) => (
-              <React.Fragment key={step}>
-                <span style={{ padding: '2px 8px', borderRadius: 4, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)' }}>{step}</span>
-                {i < arr.length - 1 && <Zap size={10} color="rgba(56,189,248,0.4)" />}
-              </React.Fragment>
+        {/* Quick Demo Pre-load buttons */}
+        <div className="p-3" style={{ background: 'rgba(0, 0, 0, 0.4)', border: '1px solid rgba(0, 240, 255, 0.08)' }}>
+          <span className="text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 mb-2" style={{ color: 'var(--cyan-dim)' }}>
+            <Sparkles size={12} style={{ color: 'var(--amber)' }} /> PRE-LOADED TACTICAL DEMO CASES
+          </span>
+          <div className="grid grid-cols-2 gap-2">
+            {[
+              { id: 1, title: 'CASE #1: ANDHERI EXTORTION', sub: "Suspect 'Chhotu' + Pulsar MH-02" },
+              { id: 2, title: 'CASE #2: JOGESHWARI THREAT', sub: 'Deepak + Swift MH-04 + Ramesh' },
+              { id: 3, title: 'CASE #3: CRIME BRANCH HAWALA', sub: 'Ramesh Gupta hawala conduit Delhi' },
+              { id: 4, title: 'CASE #4: VERSOVA ASSAULT', sub: 'Deepak + Bunty physical coercion' },
+            ].map((c) => (
+              <button
+                key={c.id}
+                onClick={() => loadMockSample(c.id)}
+                disabled={isProcessing}
+                className="text-left p-2 transition"
+                style={{
+                  background: 'rgba(0, 240, 255, 0.03)',
+                  border: '1px solid rgba(0, 240, 255, 0.1)',
+                  cursor: isProcessing ? 'not-allowed' : 'pointer',
+                }}
+              >
+                <span className="font-bold text-white block text-[11px] uppercase tracking-wider">{c.title}</span>
+                <span className="text-[9px] block" style={{ color: 'var(--text-3)' }}>{c.sub}</span>
+              </button>
             ))}
           </div>
 
-          {error && (
-            <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 8, padding: '10px 12px', fontSize: 12, color: '#fca5a5', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-              <AlertTriangle size={14} color="#f87171" style={{ flexShrink: 0, marginTop: 1 }} />
-              <span>{error}</span>
-            </div>
-          )}
-        </div>
+        {error && (
+          <div className="p-2 text-xs flex items-center gap-2" style={{ background: 'var(--red-bg)', border: '1px solid var(--red)', color: 'var(--red)' }}>
+            <AlertTriangle size={14} style={{ flexShrink: 0 }} />
+            <span>{error}</span>
+          </div>
 
-        {/* Footer */}
-        <div className="modal-footer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 10 }}>
-          <button className="btn btn-ghost btn-sm" onClick={onClose} disabled={isProcessing}>Cancel</button>
+        {/* Action Buttons */}
+        <div className="flex items-center justify-end gap-2 pt-2 border-t" style={{ borderColor: 'rgba(0, 240, 255, 0.08)' }}>
+          <button
+            onClick={onClose}
+            className="btn btn-ghost"
+            disabled={isProcessing}
+          >
+            ABORT
+          </button>
           <button
             className="btn btn-primary btn-sm"
             onClick={handleUpload}
             disabled={!file || isProcessing}
-            id="btn-extract-pole"
+            className="btn btn-primary"
           >
-            {isProcessing && !processingCase ? (
-              <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span className="animate-spin" style={{ width: 12, height: 12, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', display: 'inline-block' }} />
-                Processing OCR & Extracting…
-              </span>
-            ) : 'Extract & Review POLE Entities'}
+            {isProcessing ? 'PROCESSING OCR PIPELINE...' : 'EXECUTE EXTRACTION'}
           </button>
         </div>
       </div>

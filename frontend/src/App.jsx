@@ -6,8 +6,28 @@ import ControlPanel from './components/ControlPanel';
 import FIRUploadModal from './components/FIRUploadModal';
 import ReviewScreen from './components/ReviewScreen';
 import IntelBanner from './components/IntelBanner';
+import HudSummary from './components/HudSummary';
+import GeoIntelView from './components/GeoIntelView';
+import DemoReel from './components/DemoReel';
 
 const API_BASE = 'http://localhost:8000';
+
+/* ── UTC clock for the top banner ── */
+function useClock() {
+  const [time, setTime] = useState('');
+  useEffect(() => {
+    const tick = () => {
+      const d = new Date();
+      setTime(
+        d.toISOString().slice(11, 19) + ' UTC'
+      );
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
+  return time;
+}
 
 export default function App() {
   const [graphData, setGraphData] = useState({ nodes: [], links: [] });
@@ -23,6 +43,12 @@ export default function App() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isSeeding, setIsSeeding] = useState(false);
   const [stats, setStats] = useState({ totalNodes: 0, totalLinks: 0 });
+  const [activeView, setActiveView] = useState('network'); // 'network' | 'geo'
+  const [viewMode, setViewMode] = useState('normal'); // 'normal' | 'thermal' | 'nvg'
+  const [detectionMode, setDetectionMode] = useState(false);
+  const [isDemoOpen, setIsDemoOpen] = useState(false);
+
+  const clock = useClock();
 
   const fetchGraph = useCallback(async () => {
     try {
@@ -75,6 +101,14 @@ export default function App() {
     finally { setIsAnalyzing(false); }
   };
 
+  const handleSelectNodeByName = useCallback((name) => {
+    if (!graphData || !graphData.nodes) return;
+    const matched = graphData.nodes.find(n =>
+      (n.display_name || n.name || '').toLowerCase().includes(name.toLowerCase())
+    );
+    if (matched) setSelectedNode(matched);
+  }, [graphData]);
+
   const handleSeedDatabase = async () => {
     setIsSeeding(true);
     try {
@@ -118,9 +152,29 @@ export default function App() {
     } finally { setIsCommitting(false); }
   };
 
+  /* View mode CSS filter class */
+  const viewFilterClass = viewMode === 'thermal' ? 'view-filter-thermal'
+                        : viewMode === 'nvg'     ? 'view-filter-nvg'
+                        : '';
+
   return (
     <div className="app-shell">
-      {/* LEFT SIDEBAR */}
+      {/* ── TOP BANNER STRIP ── */}
+      <div className="top-banner-strip">
+        <div className="banner-title">
+          <span>OPERATION RAKT</span> // TACTICAL INTELLIGENCE PLATFORM
+        </div>
+        <div className="banner-right">
+          <span className="banner-status">NEO4J CONNECTED</span>
+          <span className="banner-clock">{clock}</span>
+          <div className="banner-live">
+            <div className="banner-live-dot" />
+            LIVE
+          </div>
+        </div>
+      </div>
+
+      {/* ── LEFT SIDEBAR ── */}
       <aside className="app-left-panel">
         <ControlPanel
           onOpenUpload={() => setIsUploadOpen(true)}
@@ -137,21 +191,58 @@ export default function App() {
           isSeeding={isSeeding}
           simulationResult={simulationResult}
           stats={stats}
-        />
-      </aside>
-
-      {/* MAIN CANVAS */}
-      <main className="app-canvas-area">
-        <GraphCanvas
+          activeView={activeView}
+          onSetActiveView={setActiveView}
+          viewMode={viewMode}
+          onSetViewMode={setViewMode}
+          detectionMode={detectionMode}
+          onToggleDetection={() => setDetectionMode(!detectionMode)}
+          onPlayDemo={() => setIsDemoOpen(true)}
           graphData={graphData}
           selectedNode={selectedNode}
           onNodeClick={handleNodeClick}
+        />
+      </aside>
+
+      {/* ── MAIN CANVAS ── */}
+      <main className={`app-canvas-area ${viewFilterClass}`}>
+        {/* HUD Summary */}
+        <HudSummary
+          graphData={graphData}
           topBridgeNode={topBridgeNode}
-          isSimulationActive={isSimulationActive}
           simulationResult={simulationResult}
         />
 
-        {/* RIGHT DRAWER — overlays the canvas only */}
+        {/* Scan-line CRT overlay */}
+        <div className="scanline-overlay" />
+
+        {/* Corner bracket accents */}
+        <div className="corner-brackets">
+          <div className="corner-bracket-tr" />
+          <div className="corner-bracket-bl" />
+        </div>
+
+        {/* View mode: Geo Intelligence vs Network Graph */}
+        {activeView === 'geo' ? (
+          <GeoIntelView
+            graphData={graphData}
+            selectedNode={selectedNode}
+            onNodeClick={handleNodeClick}
+            topBridgeNode={topBridgeNode}
+          />
+        ) : (
+          <GraphCanvas
+            graphData={graphData}
+            selectedNode={selectedNode}
+            onNodeClick={handleNodeClick}
+            topBridgeNode={topBridgeNode}
+            isSimulationActive={isSimulationActive}
+            simulationResult={simulationResult}
+            detectionMode={detectionMode}
+          />
+        )}
+
+        {/* Right drawer — overlays the canvas */}
         {selectedNode && (
           <div className="app-right-drawer">
             <NodeDetail
@@ -159,11 +250,12 @@ export default function App() {
               centralityScore={centralityScores[selectedNode.id]}
               onClose={() => setSelectedNode(null)}
               onSimulateArrest={executeArrestSimulation}
+              graphData={graphData}
             />
           </div>
         )}
 
-        {/* BOTTOM INTEL BANNER */}
+        {/* Bottom intel banner */}
         <div className="app-bottom-banner">
           <IntelBanner
             topBridgeNode={topBridgeNode}
@@ -174,7 +266,7 @@ export default function App() {
         </div>
       </main>
 
-      {/* MODALS — always on top */}
+      {/* ── MODALS ── */}
       <FIRUploadModal
         isOpen={isUploadOpen}
         onClose={() => setIsUploadOpen(false)}
@@ -189,6 +281,19 @@ export default function App() {
           isCommitting={isCommitting}
         />
       )}
+
+      {/* ── DEMO TOUR REEL ── */}
+      <DemoReel
+        isOpen={isDemoOpen}
+        onClose={() => setIsDemoOpen(false)}
+        onAnalyzeCentrality={handleAnalyzeCentrality}
+        onSelectNodeByName={handleSelectNodeByName}
+        onToggleSimulation={(active) => {
+          setIsSimulationActive(active);
+          if (!active) handleResetSimulation();
+        }}
+        onSetActiveView={setActiveView}
+      />
     </div>
   );
 }
