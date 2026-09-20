@@ -1,0 +1,9 @@
+# Hardhat ignores
+node_modules/
+cache/
+artifacts/
+typechain-types/
+ignition/deployments/
+coverage/
+coverage.json
+.DS_Store

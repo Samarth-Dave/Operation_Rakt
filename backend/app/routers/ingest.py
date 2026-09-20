@@ -32,9 +32,14 @@ async def upload_fir(file: UploadFile = File(...)):
 
         logger.info(f"OCR complete: {len(raw_text)} chars, confidence: {ocr_confidence:.1f}%")
 
+        import re
         # Step 2: LLM entity extraction + BNS tagging
         try:
-            extraction = llm_service.extract_entities(raw_text)
+            # Extract FIR number via simple regex first as a fallback hint
+            match = re.search(r"FIR No:?\s*([A-Z0-9/_-]+)", raw_text, re.IGNORECASE)
+            fir_number_hint = match.group(1).strip() if match else "UNKNOWN"
+
+            extraction = llm_service.extract_entities(raw_text, fir_number_hint)
         except RuntimeError as e:
             raise HTTPException(status_code=500, detail=f"LLM extraction failed: {e}")
 

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useCallback, useMemo } from 'react';
+import React, { useRef, useEffect, useCallback, useMemo, useState } from 'react';
 import ForceGraph2D from 'react-force-graph-2d';
 
 const NODE_COLORS = {
@@ -59,6 +59,22 @@ export default function GraphCanvas({
   isSimulationActive, simulationResult, detectionMode
 }) {
   const fgRef = useRef();
+  const containerRef = useRef(null);
+  const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const observer = new ResizeObserver(entries => {
+      for (let entry of entries) {
+        setDimensions({
+          width: entry.contentRect.width,
+          height: entry.contentRect.height
+        });
+      }
+    });
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   // Find neighbor nodes and links for click-to-focus isolation
   const { connectedNodeIds, connectedLinkSet } = useMemo(() => {
@@ -264,9 +280,11 @@ export default function GraphCanvas({
   }, [selectedNode, topBridgeNode, isSimulationActive, detectionMode, connectedNodeIds]);
 
   return (
-    <div style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden' }}>
+    <div ref={containerRef} style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden' }}>
       <ForceGraph2D
         ref={fgRef}
+        width={dimensions.width}
+        height={dimensions.height}
         graphData={graphData}
         nodeId="id"
         nodeCanvasObject={paintNode}
@@ -300,6 +318,13 @@ export default function GraphCanvas({
         d3AlphaDecay={0.018}
         d3VelocityDecay={0.28}
       />
+      <button
+        className="btn"
+        style={{ position: 'absolute', bottom: 20, right: 20, zIndex: 10, padding: '6px 12px', fontSize: '10px' }}
+        onClick={() => fgRef.current?.zoomToFit(400)}
+      >
+        ⌖ RECENTER GRAPH
+      </button>
     </div>
   );
 }

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Upload, FileText, AlertTriangle, Sparkles, X } from 'lucide-react';
 import axios from 'axios';
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000';
 
 // Full realistic FIR texts (mirrors backend/app/data/mock_firs/)
 const DEMO_CASES = [
@@ -257,7 +257,7 @@ export default function FIRUploadModal({ isOpen, onClose, onExtractionComplete }
       const formData = new FormData();
       formData.append('file', mockFile);
 
-      const resp = await axios.post('http://localhost:8000/api/ingest/upload', formData);
+      const resp = await axios.post(`${API_BASE}/api/ingest/upload`, formData);
       if (resp.data.success) {
         onExtractionComplete(resp.data.extraction);
       }
@@ -350,12 +350,14 @@ export default function FIRUploadModal({ isOpen, onClose, onExtractionComplete }
               </button>
             ))}
           </div>
+        </div>
 
         {error && (
           <div className="p-2 text-xs flex items-center gap-2" style={{ background: 'var(--red-bg)', border: '1px solid var(--red)', color: 'var(--red)' }}>
             <AlertTriangle size={14} style={{ flexShrink: 0 }} />
             <span>{error}</span>
           </div>
+        )}
 
         {/* Action Buttons */}
         <div className="flex items-center justify-end gap-2 pt-2 border-t" style={{ borderColor: 'rgba(0, 240, 255, 0.08)' }}>

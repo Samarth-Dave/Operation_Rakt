@@ -38,8 +38,10 @@ def compute_centrality_networkx(graph_data: dict) -> dict:
             "pagerank": round(pagerank.get(node_id, 0.0), 4),
         }
 
-    # Identify top bridge node (highest betweenness)
-    top_node_id = max(betweenness, key=betweenness.get) if betweenness else None
+    # Identify top bridge node (highest betweenness) - ONLY consider Person nodes
+    person_nodes = [n for n, props in G.nodes(data=True) if props.get("label") == "Person"]
+    top_node_id = max(person_nodes, key=lambda n: betweenness.get(n, 0.0)) if person_nodes else None
+    
     top_bridge = None
     if top_node_id is not None:
         node_props = G.nodes[top_node_id]
@@ -113,9 +115,16 @@ def run_centrality_analysis() -> dict:
                 session.run("CALL gds.graph.drop($name, false)", name=proj_name)
 
                 if gds_scores:
-                    top_id = max(gds_scores, key=lambda k: gds_scores[k]["betweenness"])
-                    # Find node info
-                    top_node = next((n for n in graph_data["nodes"] if n["id"] == top_id), None)
+                    # Find valid Person nodes to consider for the top bridge
+                    person_nodes = [n for n in graph_data["nodes"] if n["id"] in gds_scores and n.get("label") == "Person"]
+                    if person_nodes:
+                        top_node = max(person_nodes, key=lambda n: gds_scores[n["id"]]["betweenness"])
+                        top_id = top_node["id"]
+                    else:
+                        # Fallback if no Person nodes exist
+                        top_id = max(gds_scores, key=lambda k: gds_scores[k]["betweenness"])
+                        top_node = next((n for n in graph_data["nodes"] if n["id"] == top_id), None)
+
                     return {
                         "scores": gds_scores,
                         "top_bridge": {

@@ -10,7 +10,7 @@ import HudSummary from './components/HudSummary';
 import GeoIntelView from './components/GeoIntelView';
 import DemoReel from './components/DemoReel';
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000';
 
 /* ── UTC clock for the top banner ── */
 function useClock() {
@@ -67,7 +67,12 @@ export default function App() {
 
   const handleNodeClick = useCallback(async (node) => {
     if (isSimulationActive) {
-      executeArrestSimulation(node.id);
+      const label = node.label || (node.labels && node.labels[0]);
+      if (label === 'Person') {
+        executeArrestSimulation(node.id);
+      } else {
+        console.warn("Tactical Arrest simulation requires a Person node.");
+      }
     } else {
       try {
         const resp = await axios.get(`${API_BASE}/api/graph/node/${node.id}`);

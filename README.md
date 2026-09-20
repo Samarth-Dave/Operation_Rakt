@@ -1,158 +1,112 @@
 # Operation Rakt — AI Criminal Syndicate Intelligence Platform
 
 > **Smart India Hackathon (SIH) Prototype**  
-> **Scope**: Module A (Automated Ingestion + POLE Extraction + BNS 2023 Statutory Tagging) & Module C (Neo4j Graph Visualization + GDS Centrality + Kingpin Arrest Simulation)
+> **Scope**: Module A (Automated Ingestion + POLE Extraction + BNS Tagging), Module C (Neo4j Graph Visualization + Centrality + Arrest Simulation), and Chain of Custody (Web3 Evidence Ledger).
+
+Operation Rakt is not just software; it is an **AI-Driven Intelligence Tool** that acts as the "brain" for law enforcement, uncovering non-obvious criminal connections hidden across thousands of unstructured police documents.
 
 ---
 
-## 🚀 Quick Start Guide
+## 🧠 Deep Dive & Terminology Guide
 
-### Prerequisites
-- **Docker Desktop** (running)
-- **Python 3.10+** (with conda or pip)
-- **Node.js 18+** & **npm**
+### The Flow: How It Works
+1. **OCR (Text Parsing):** An Investigating Officer (IO) uploads a scanned FIR or image. The system extracts raw text via Tesseract/pdfplumber.
+2. **LLM Extraction (POLE):** The raw text is passed to an LLM (e.g., Gemini) with a strict JSON schema. It extracts the "Who, What, Where, and What Happened" mapping to the international **POLE (Person, Object, Location, Event)** model.
+3. **Human-in-the-Loop:** AI doesn't write directly to the database. An officer reviews and corrects the AI-extracted data in a side-by-side UI to ensure court admissibility.
+4. **Neo4j Graph Upsert:** Verified data is upserted into Neo4j using Cypher `MERGE` queries, preventing duplication and automatically linking new nodes to existing criminal networks.
+5. **GDS Analysis (Tactical Arrest):** Neo4j Graph Data Science (GDS) algorithms mathematically identify the "Kingpins" or bridges in the network. Simulating an arrest recalculates the graph to show how the syndicate fragments.
+6. **Chain of Custody (Web3):** Every time physical or digital evidence (Object nodes) is viewed, analyzed, or transferred, the action is securely signed via MetaMask and logged on a local Ethereum blockchain (Hardhat/Ganache) for immutable tracking.
 
----
-
-### Step 1: Start Neo4j Database via Docker
-
-From the project root:
-```bash
-docker compose up -d
-```
-Neo4j runs with the **Graph Data Science (GDS)** library enabled:
-- **Bolt Port**: `bolt://localhost:7687` (User: `neo4j`, Password: `operation_rakt`)
-- **Neo4j Browser**: `http://localhost:7474`
+### Key Buzzwords to Know
+* **Betweenness Centrality (The Bridge Score):** An algorithm that finds nodes acting as a bridge from one part of a graph to another. The true "Kingpin" often isn't the most active street thug, but the single hawala agent connecting two isolated gangs.
+* **Connected Components:** Identifies isolated sub-graphs. When we "Simulate Arrest" on a kingpin, this algorithm proves how the syndicate shatters into blind, disconnected pieces.
+* **Deterministic Fallback:** Hardcoded logic ensuring the demo never breaks if the Cloud LLM API hits rate limits.
+* **Cypher:** The query language of Neo4j. Instead of SQL's `SELECT`, it uses drawing-like syntax: `MATCH (a:Person)-[r:COMMITTED]->(b:Event)`.
 
 ---
 
-### Step 2: Configure & Start Python FastAPI Backend
+## 🛠️ Architecture & Tech Stack
 
-1. Navigate to `backend/`:
-   ```bash
-   cd backend
-   ```
-2. Copy environment file (optional, offline fallback mode works out of the box):
-   ```bash
-   cp .env.example .env
-   ```
-   *(Add your `GOOGLE_API_KEY` or `GROQ_API_KEY` in `.env` if you want live cloud LLM extraction).*
-
-3. Seed the 4 realistic mock FIR cases into Neo4j:
-   ```bash
-   python seed.py --reset
-   ```
-   *Creates 31 interconnected nodes across 4 cases: Andheri extortion, Jogeshwari protection racket, Crime Branch hawala conduit, and Versova assault.*
-
-4. Launch FastAPI server:
-   ```bash
-   uvicorn app.main:app --host 0.0.0.0 --port 8000
-   ```
-   *Swagger Docs available at: `http://localhost:8000/docs`*
+- **Frontend**: React + Vite, `react-force-graph-2d`, `ethers`, `axios`, `lucide-react`
+- **Backend**: Python FastAPI, `pytesseract`, `pdfplumber`, `google-generativeai`, `neo4j`, `networkx`
+- **Database**: Neo4j (Docker Community Edition with GDS plugin)
+- **Blockchain**: Solidity, Hardhat, Ganache, Ethers.js
 
 ---
 
-### Step 3: Launch React Frontend
+## 🚀 Step-by-Step Setup & Run Instructions
 
-In a separate terminal:
-```bash
-cd frontend
-npm install
-npm run dev
-```
-Open **`http://localhost:5173`** in your browser.
+### 1. Prerequisites (For All OS)
+- **Docker Desktop** installed and running.
+- **Node.js (v18+)** and **npm** installed.
+- **Python (3.10+)** installed.
+- **Ganache** (CLI or UI) running on `http://127.0.0.1:7545`.
+- **MetaMask** browser extension installed.
 
----
+### 2. Start the Neo4j Database
+1. Open a terminal in the root directory:
+   - **Mac/Linux/Windows:** `docker compose up -d`
+2. The database will be available at `bolt://localhost:7687` (User: `neo4j`, Password: `operation_rakt`).
 
-## 🎯 Scripted 3-Minute Hackathon Demo Walkthrough
+### 3. Deploy the Blockchain (Hardhat)
+1. Open a terminal and navigate to the `blockchain` directory.
+2. Install dependencies (explicitly pinned to Hardhat v2 for compatibility):
+   - **Mac/Linux/Windows:** `npm install --save-dev hardhat@^2.22.0 @nomicfoundation/hardhat-toolbox@^5.0.0 dotenv`
+3. Create `.env` from `.env.example`:
+   - **Mac/Linux:** `cp .env.example .env`
+   - **Windows:** `copy .env.example .env`
+   - *(Insert your Ganache Private Key into `.env`)*
+4. Deploy the smart contract:
+   - **Mac/Linux/Windows:** `npx hardhat ignition deploy ./ignition/modules/EvidenceLedger.js --network ganache`
+5. **Copy the deployed contract address** outputted in the terminal.
 
-Use this rehearsed script when presenting live to judges:
+### 4. Start the Backend (FastAPI)
+1. Open a terminal and navigate to the `backend` directory.
+2. Create and activate a virtual environment:
+   - **Mac/Linux:** `python3 -m venv venv && source venv/bin/activate`
+   - **Windows:** `python -m venv venv` and `venv\Scripts\activate`
+3. Install Python dependencies:
+   - **Mac/Linux/Windows:** `pip install -r requirements.txt`
+4. Create `.env` from `.env.example` (add LLM API keys if using cloud extraction).
+5. Start the server:
+   - **Mac/Linux/Windows:** `uvicorn app.main:app --reload`
+6. API is live at `http://localhost:8000`.
 
-### 0:00 - 0:45 | The Problem & Live Graph Overview
-> *"Judges, police departments across India face 'intelligence silos.' Critical syndicate connections remain buried in handwritten Hindi-English FIRs. Operation Rakt turns unstructured crime narratives into an active intelligence knowledge graph.*
->
-> *Here on screen is our live Neo4j knowledge graph populated across 4 real-world extortion and hawala cases in Mumbai and Delhi. Each node is strictly structured using the international **POLE (Person, Object, Location, Event)** model and statutory provisions from the newly enacted **Bharatiya Nyaya Sanhita (BNS) 2023**."*
-
-### 0:45 - 1:30 | Automated Ingestion & Human-in-the-Loop Review
-> *(Click **"Ingest FIR"** in the top-left control panel)*
-> *"When an Investigating Officer uploads an FIR—scanned image, digital PDF, or text—our dual OCR and LLM pipeline parses entities and cross-references BNS sections.*
->
-> *(Click **"Case #1: Andheri Extortion"** quick-loader)*
-> *"Notice our Human-in-the-Loop review screen. If an OCR confidence score falls below threshold, the IO verifies the suspect roles, aliases, or vehicle registrations before committing to Neo4j. This prevents hallucinated data and guarantees court admissibility."*
->
-> *(Click **"Commit to Knowledge Graph"**)*
-
-### 1:30 - 2:15 | Mathematical Network Analysis (GDS Centrality)
-> *(Click **"Analyze Network"**)*
-> *"Traditional databases are passive. Operation Rakt is tactical. Clicking 'Analyze Network' executes **Betweenness Centrality** and **PageRank** via Neo4j Graph Data Science.*
->
-> *Look at the canvas—the system instantly pinpoints the network's critical bottleneck: **`Ramesh Gupta / Hawala Conduit`** with a betweenness score of 0.4031.*
->
-> *(Click on Ramesh Gupta's node)*
-> *"He isn't pulling triggers on the street—he's the bridge channeling extortion money from Mumbai suburb collectors to the Delhi syndicate."*
-
-### 2:15 - 3:00 | Kingpin Arrest Simulation (Graph Shattering)
-> *(Toggle **"Simulate Arrest"** in the control panel)*
-> *"Now, here is the operational breakthrough. Before dispatching a strike team, Inspector Raj can ask: 'If we arrest Ramesh tonight, does the syndicate collapse?'"*
->
-> *(Click on Ramesh's node on the canvas)*
-> *"Watch the canvas dynamically shatter. This is a real graph computation—all incident operational links are severed, and connected components are recomputed in milliseconds.*
->
-> *The network immediately fragments into **3 isolated clusters**, color-coded on the screen. The street extortionists in Andheri are severed from their logistics in Thane and their leadership in Delhi. Operation Rakt has neutralized the syndicate."*
-
-### Conclusion Line:
-> *"We prioritized building Modules A and C to full mathematical depth rather than building all 4 modules shallowly. Everything you saw today is real, deterministic graph computation."*
-
----
-
-## 🛠️ Architecture & API Endpoints
-
-```
-Frontend (React + Vite + react-force-graph-2d)
-      │
-      ├── GET  /api/graph              -> Returns full Neo4j nodes & relationships
-      ├── GET  /api/graph/centrality   -> Computes Betweenness & PageRank
-      ├── POST /api/ingest/upload      -> OCR + Strict LLM POLE JSON extraction
-      ├── POST /api/ingest/confirm     -> Cypher MERGE upsert to Neo4j (no duplicates)
-      └── POST /api/simulate/arrest/:id -> Removes node & computes network fragmentation
-```
+### 5. Start the Frontend (React / Vite)
+1. Open a terminal and navigate to the `frontend` directory.
+2. Install dependencies:
+   - **Mac/Linux/Windows:** `npm install` *(installs `react-force-graph-2d`, `ethers`, `lucide-react`, `axios`, etc.)*
+3. Create `.env` from `.env.example`:
+   - **Mac/Linux:** `cp .env.example .env`
+   - **Windows:** `copy .env.example .env`
+4. **Paste the Hardhat contract address** (from Step 3) into the `VITE_CONTRACT_ADDRESS` variable in `frontend/.env`.
+5. Start the Vite server:
+   - **Mac/Linux/Windows:** `npm run dev`
+6. Open `http://localhost:5173` in your browser. Ensure MetaMask is connected to Localhost 8545.
 
 ---
 
-## 📁 Project Structure
+## 🎯 SIH 3-Minute Live Demo Walkthrough
 
-```
-Operation Rakt/
-├── backend/
-│   ├── app/
-│   │   ├── main.py                  # FastAPI application entry point
-│   │   ├── models/schemas.py        # Strict Pydantic POLE & BNS schemas
-│   │   ├── services/
-│   │   │   ├── ocr_service.py       # Tesseract + pdfplumber OCR engine
-│   │   │   ├── llm_service.py       # Gemini / Groq / deterministic fallback
-│   │   │   ├── neo4j_service.py     # Cypher MERGE queries & graph retrieval
-│   │   │   └── gds_service.py       # Neo4j GDS & NetworkX Centrality
-│   │   ├── routers/
-│   │   │   ├── ingest.py            # Upload & human-in-the-loop review
-│   │   │   ├── graph.py             # Graph queries & centrality endpoint
-│   │   │   └── simulate.py          # Real graph fragmentation computation
-│   │   └── data/
-│   │       ├── bns_reference.json   # 17 BNS 2023 statutory sections
-│   │       └── mock_firs/           # 4 realistic Mumbai/Delhi syndicate FIRs
-│   ├── seed.py                      # Database population & wipe script
-│   └── requirements.txt             # Python dependencies
-├── frontend/
-│   ├── src/
-│   │   ├── App.jsx                  # Master tactical intelligence dashboard
-│   │   ├── components/
-│   │   │   ├── GraphCanvas.jsx      # Force-directed interactive canvas
-│   │   │   ├── ControlPanel.jsx     # Stats, Ingest, Centrality, Simulate Arrest
-│   │   │   ├── NodeDetail.jsx       # Side inspector with GDS centrality metrics
-│   │   │   ├── FIRUploadModal.jsx   # Document dropzone + 1-click case loaders
-│   │   │   ├── ReviewScreen.jsx     # Side-by-side human-in-the-loop editor
-│   │   │   └── IntelBanner.jsx      # Centrality alert & fragmentation briefing
-│   │   └── index.css                # Pure Vanilla CSS dark-mode design system
-│   ├── package.json
-│   └── vite.config.js
-└── docker-compose.yml               # Neo4j 5 with GDS plugin configuration
-```
+*(Before demo: Use the `Wipe Database` button so you start with 0 nodes. Ensure MetaMask is unlocked and connected to Localhost 8545)*
+
+**0:00 - 0:30 | The Problem & The Entity Roster**
+> "Judges, police departments face 'intelligence silos.' Critical connections are buried in thousands of unstructured Hindi-English FIRs. Operation Rakt solves this by turning text into an active knowledge graph. Watch the Entity Roster panel on the left as I ingest our first case."
+
+**0:30 - 1:15 | Automated Ingestion & Human-in-the-Loop**
+*(Click Ingest FIR -> Case #1. Then click Ingest FIR -> Case #2)*
+> "Our pipeline uses LLMs to parse text into the POLE model—Persons, Objects, Locations, and Events—and maps them to BNS 2023 statutes. Notice the split-screen Human-in-the-Loop review panel. If an OCR confidence score falls below our threshold, the Investigating Officer must verify the entities before committing them to Neo4j. This guarantees court admissibility."
+*(Click Commit to Knowledge Graph).*
+
+**1:15 - 1:45 | Tactical Geospatial Intelligence**
+*(Toggle 'GEO INTEL' view)*
+> "Crimes don't happen in a void. Clicking 'Geo Intel' plots our extracted locations onto a tactical dark-matter map. The curved corridors you see aren't just lines—they mathematically represent the physical movement of suspects and illicit funds across Mumbai and Delhi. We can instantly visualize the syndicate's operational territory."
+
+**1:45 - 2:30 | Mathematical Network Analysis & Arrest Simulation**
+*(Switch back to 'NETWORK'. Click Analyze Network)*
+> "Traditional databases are passive; ours is tactical. Clicking 'Analyze Network' executes Neo4j's Betweenness Centrality algorithm. It instantly pinpoints the critical bottleneck: Ramesh Gupta, a hawala conduit. He isn't pulling triggers—he's the bridge. 
+> But what if we arrest him? *(Toggle Simulate Arrest, click Ramesh's node)* Notice how the FIR paperwork nodes fade to gray. By mathematically stripping away the metadata, we reveal the true physical network. Watch the graph shatter as the syndicate fragments into isolated, blind clusters, leaving our target completely severed from his empire."
+
+**2:30 - 3:00 | Web3 Evidence Chain of Custody**
+*(Click a Case/Object Node to open the side panel, scroll down to On-Chain Ledger, log a view via MetaMask)*
+> "Finally, preserving evidence integrity. Every time digital or physical evidence is interacted with, it requires cryptographic authorization. Watch as I sign this 'Viewed' event in MetaMask. It logs directly to our local Ethereum node. An immutable, tamper-proof, zero-trust chain of custody. Everything you saw today is real, deterministic code."
