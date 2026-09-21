@@ -10,6 +10,7 @@ Operation Rakt is not just software; it is an **AI-Driven Intelligence Tool** th
 ## 🧠 Deep Dive & Terminology Guide
 
 ### The Flow: How It Works
+
 1. **OCR (Text Parsing):** An Investigating Officer (IO) uploads a scanned FIR or image. The system extracts raw text via Tesseract/pdfplumber.
 2. **LLM Extraction (POLE):** The raw text is passed to an LLM (e.g., Gemini) with a strict JSON schema. It extracts the "Who, What, Where, and What Happened" mapping to the international **POLE (Person, Object, Location, Event)** model.
 3. **Human-in-the-Loop:** AI doesn't write directly to the database. An officer reviews and corrects the AI-extracted data in a side-by-side UI to ensure court admissibility.
@@ -18,6 +19,7 @@ Operation Rakt is not just software; it is an **AI-Driven Intelligence Tool** th
 6. **Chain of Custody (Web3):** Every time physical or digital evidence (Object nodes) is viewed, analyzed, or transferred, the action is securely signed via MetaMask and logged on a local Ethereum blockchain (Hardhat/Ganache) for immutable tracking.
 
 ### Key Buzzwords to Know
+
 * **Betweenness Centrality (The Bridge Score):** An algorithm that finds nodes acting as a bridge from one part of a graph to another. The true "Kingpin" often isn't the most active street thug, but the single hawala agent connecting two isolated gangs.
 * **Connected Components:** Identifies isolated sub-graphs. When we "Simulate Arrest" on a kingpin, this algorithm proves how the syndicate shatters into blind, disconnected pieces.
 * **Deterministic Fallback:** Hardcoded logic ensuring the demo never breaks if the Cloud LLM API hits rate limits.
@@ -27,61 +29,66 @@ Operation Rakt is not just software; it is an **AI-Driven Intelligence Tool** th
 
 ## 🛠️ Architecture & Tech Stack
 
-- **Frontend**: React + Vite, `react-force-graph-2d`, `ethers`, `axios`, `lucide-react`
-- **Backend**: Python FastAPI, `pytesseract`, `pdfplumber`, `google-generativeai`, `neo4j`, `networkx`
-- **Database**: Neo4j (Docker Community Edition with GDS plugin)
-- **Blockchain**: Solidity, Hardhat, Ganache, Ethers.js
+* **Frontend**: React + Vite, `react-force-graph-2d`, `ethers`, `axios`, `lucide-react`
+* **Backend**: Python FastAPI, `pytesseract`, `pdfplumber`, `google-generativeai`, `neo4j`, `networkx`
+* **Database**: Neo4j (Docker Community Edition with GDS plugin)
+* **Blockchain**: Solidity, Hardhat, Ganache, Ethers.js
 
 ---
 
 ## 🚀 Step-by-Step Setup & Run Instructions
 
 ### 1. Prerequisites (For All OS)
+
 - **Docker Desktop** installed and running.
-- **Node.js (v18+)** and **npm** installed.
-- **Python (3.10+)** installed.
-- **Ganache** (CLI or UI) running on `http://127.0.0.1:7545`.
-- **MetaMask** browser extension installed.
+* **Node.js (v18+)** and **npm** installed.
+* **Python (3.10+)** installed.
+* **Ganache** (CLI or UI) running on `http://127.0.0.1:7545`.
+* **MetaMask** browser extension installed.
 
 ### 2. Start the Neo4j Database
+
 1. Open a terminal in the root directory:
-   - **Mac/Linux/Windows:** `docker compose up -d`
+   * **Mac/Linux/Windows:** `docker compose up -d`
 2. The database will be available at `bolt://localhost:7687` (User: `neo4j`, Password: `operation_rakt`).
 
 ### 3. Deploy the Blockchain (Hardhat)
+
 1. Open a terminal and navigate to the `blockchain` directory.
 2. Install dependencies (explicitly pinned to Hardhat v2 for compatibility):
-   - **Mac/Linux/Windows:** `npm install --save-dev hardhat@^2.22.0 @nomicfoundation/hardhat-toolbox@^5.0.0 dotenv`
+   * **Mac/Linux/Windows:** `npm install --save-dev hardhat@^2.22.0 @nomicfoundation/hardhat-toolbox@^5.0.0 dotenv`
 3. Create `.env` from `.env.example`:
-   - **Mac/Linux:** `cp .env.example .env`
-   - **Windows:** `copy .env.example .env`
-   - *(Insert your Ganache Private Key into `.env`)*
+   * **Mac/Linux:** `cp .env.example .env`
+   * **Windows:** `copy .env.example .env`
+   * *(Insert your Ganache Private Key into `.env`)*
 4. Deploy the smart contract:
-   - **Mac/Linux/Windows:** `npx hardhat ignition deploy ./ignition/modules/EvidenceLedger.js --network ganache`
+   * **Mac/Linux/Windows:** `npx hardhat ignition deploy ./ignition/modules/EvidenceLedger.js --network ganache --reset`
 5. **Copy the deployed contract address** outputted in the terminal.
 
 ### 4. Start the Backend (FastAPI)
+
 1. Open a terminal and navigate to the `backend` directory.
 2. Create and activate a virtual environment:
-   - **Mac/Linux:** `python3 -m venv venv && source venv/bin/activate`
-   - **Windows:** `python -m venv venv` and `venv\Scripts\activate`
+   * **Mac/Linux:** `python3 -m venv venv && source venv/bin/activate`
+   * **Windows:** `python -m venv venv` and `venv\Scripts\activate`
 3. Install Python dependencies:
-   - **Mac/Linux/Windows:** `pip install -r requirements.txt`
+   * **Mac/Linux/Windows:** `pip install -r requirements.txt`
 4. Create `.env` from `.env.example` (add LLM API keys if using cloud extraction).
 5. Start the server:
-   - **Mac/Linux/Windows:** `uvicorn app.main:app --reload`
+   * **Mac/Linux/Windows:** `uvicorn app.main:app --reload`
 6. API is live at `http://localhost:8000`.
 
 ### 5. Start the Frontend (React / Vite)
+
 1. Open a terminal and navigate to the `frontend` directory.
 2. Install dependencies:
-   - **Mac/Linux/Windows:** `npm install` *(installs `react-force-graph-2d`, `ethers`, `lucide-react`, `axios`, etc.)*
+   * **Mac/Linux/Windows:** `npm install` *(installs `react-force-graph-2d`, `ethers`, `lucide-react`, `axios`, etc.)*
 3. Create `.env` from `.env.example`:
-   - **Mac/Linux:** `cp .env.example .env`
-   - **Windows:** `copy .env.example .env`
+   * **Mac/Linux:** `cp .env.example .env`
+   * **Windows:** `copy .env.example .env`
 4. **Paste the Hardhat contract address** (from Step 3) into the `VITE_CONTRACT_ADDRESS` variable in `frontend/.env`.
 5. Start the Vite server:
-   - **Mac/Linux/Windows:** `npm run dev`
+   * **Mac/Linux/Windows:** `npm run dev`
 6. Open `http://localhost:5173` in your browser. Ensure MetaMask is connected to Localhost 8545.
 
 ---
@@ -90,8 +97,8 @@ Operation Rakt is not just software; it is an **AI-Driven Intelligence Tool** th
 
 *(Before demo: Use the `Wipe Database` button so you start with 0 nodes. Ensure MetaMask is unlocked and connected to Localhost 8545)*
 
-**0:00 - 0:30 | The Problem & The Entity Roster**
-> "Judges, police departments face 'intelligence silos.' Critical connections are buried in thousands of unstructured Hindi-English FIRs. Operation Rakt solves this by turning text into an active knowledge graph. Watch the Entity Roster panel on the left as I ingest our first case."
+**0:00 - 0:30 | Introduction & The Entity Roster**
+> "Welcome to the demo of Operation Rakt. Today, law enforcement agencies struggle with massive 'intelligence silos'—critical connections are buried deep within thousands of unstructured Hindi and English FIRs. We built Operation Rakt to solve this by transforming raw text into an active, intelligent knowledge graph. Let's see this in action. Watch the Entity Roster panel on the left as I ingest our first case."
 
 **0:30 - 1:15 | Automated Ingestion & Human-in-the-Loop**
 *(Click Ingest FIR -> Case #1. Then click Ingest FIR -> Case #2)*
@@ -104,7 +111,7 @@ Operation Rakt is not just software; it is an **AI-Driven Intelligence Tool** th
 
 **1:45 - 2:30 | Mathematical Network Analysis & Arrest Simulation**
 *(Switch back to 'NETWORK'. Click Analyze Network)*
-> "Traditional databases are passive; ours is tactical. Clicking 'Analyze Network' executes Neo4j's Betweenness Centrality algorithm. It instantly pinpoints the critical bottleneck: Ramesh Gupta, a hawala conduit. He isn't pulling triggers—he's the bridge. 
+> "Traditional databases are passive; ours is tactical. Clicking 'Analyze Network' executes Neo4j's Betweenness Centrality algorithm. It instantly pinpoints the critical bottleneck: Ramesh Gupta, a hawala conduit. He isn't pulling triggers—he's the bridge.
 > But what if we arrest him? *(Toggle Simulate Arrest, click Ramesh's node)* Notice how the FIR paperwork nodes fade to gray. By mathematically stripping away the metadata, we reveal the true physical network. Watch the graph shatter as the syndicate fragments into isolated, blind clusters, leaving our target completely severed from his empire."
 
 **2:30 - 3:00 | Web3 Evidence Chain of Custody**
